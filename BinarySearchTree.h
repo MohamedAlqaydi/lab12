@@ -6,6 +6,7 @@
 #include "Text.h"
 #include "Line.h"
 #include "Drawable.h"
+#include <iostream>
 using CSC2110::String;
 
 template < class T >
@@ -85,9 +86,9 @@ int BinarySearchTree<T>::getHeight(TreeNode<T>* tNode)
 		int right = getHeight(tNode->getRight());
 		
 		if(left > right)
-			return left +1;
+			return left + 1;
 		else
-			return right +1;
+			return right + 1;
 	}
 
 }
@@ -105,26 +106,17 @@ bool BinarySearchTree<T>::isBalanced(TreeNode<T>* tNode)
    //DO THIS
 	if (tNode == NULL)
 		return 1;
-	else
+
+
+	int left = getHeight(tNode->getLeft());
+	int right = getHeight(tNode->getRight());
+
+	if (abs(left - right) <= 1)
 	{
-		if(!isBalanced(tNode->getLeft()))
-			return 0;
-		
-		if(!isBalanced(tNode->getRight()))
-			return 0;
-		
-		int left = getHeight(tNode->getLeft());
-		int right = getHeight(tNode->getRight());
-
-		int height = abs(left-right);
-		
-		if(height > 1)
-			return 0;
+		return (isBalanced(tNode->getLeft()) && isBalanced(tNode->getRight()));
 	}
-	
-	return 1;
-
-
+	else
+		return 0;
 }
 
 template < class T >
@@ -136,9 +128,9 @@ BinarySearchTree<T>* BinarySearchTree<T>::minimize()
    int first = 0;
    int last = sze -1;
    
-    bst->minimize(items, first, last);
+   bst->minimize(items, first, last);
 	
-	return bst;
+   return bst;
 
 }
 
@@ -146,7 +138,7 @@ template < class T >
 void BinarySearchTree<T>::minimize(T** items, int first, int last)
 {
    //DO THIS (recursive minimize method)
-	if (first < last)
+	if (first <= last)
 	{
 		int mid = (first + last)/2;
 		this->insert(items[mid]);
@@ -179,68 +171,69 @@ BinarySearchTree<T>* BinarySearchTree<T>::minimizeComplete()
    T** items = toArray();
    BinarySearchTree<T>* bst = new BinarySearchTree<T>(compare_items, compare_keys);
    //DO THIS
-	int first = 0;
-   int last = sze -1;
-   
-    bst->minimizeComplete(items, first, last);
+
+   bst->minimizeComplete(items, 0, sze - 1);
 	
-	return bst;
+   return bst;
 
 }
 
 template < class T >
 void BinarySearchTree<T>::minimizeComplete(T** items, int first, int last)
 {
-   double TOL = 0.0001;
-   //the log base e of 2 is 0.69314718
-   //one over 0.69314718 = 1.442695042
-   double log_factor = 1.442695042;
+	double TOL = 0.0001;
+	//the log base e of 2 is 0.69314718
+	//one over 0.69314718 = 1.442695042
+	double log_factor = 1.442695042;
 
-   if (first <= last)
-   {
-      //the rounding ensures that mid is included in the count (it is necessary)
-      int mid = (int) ((last + first)/2.0 + 0.5);
+	if (first <= last)
+	{
+		//the rounding ensures that mid is included in the count (it is necessary)
+		int mid = (int)((last + first) / 2.0 + 0.5);
 
-      //start at mid and gradually move to the right to find the next element to insert into the tree
-      //if first and last are the same, mid automatically succeeds (leaf element)
-      if (first < last)
-      {
-         //initial log computations using mid
-         double k_left = log2(mid-first+1);                   //log base 2 of the number of items to the left of mid (including mid)
-         double int_k_left = (int) (k_left+0.5);               //same as above but rounded
-         double k_right = log2(last-mid+1);
-         double int_k_right = (int) (k_right+0.5);
+		//start at mid and gradually move to the right to find the next element to insert into the tree
+		//if first and last are the same, mid automatically succeeds (leaf element)
+		if (first < last)
+		{
+			//initial log computations using mid
+			double k_left = log(mid + 1 - first) * log_factor;                    //log base 2 of the number of items to the left of mid (including mid)
+			double int_k_left = (int)(k_left + 0.5);               //same as above but rounded
+			double k_right = log(last - mid + 1) * log_factor;
+			double int_k_right = (int)(k_right + 0.5);
 
-         //keep searching for spot where the number of elements to the left of mid is 2^k - 1 (a full tree)
-         //which means the number of elements to the left of mid including mid is 2^k 
-         //or the number of elements to the right of mid is 2^k
-         //compare the direct log computation and the computation cast to an int
-         //to determine if the direct computation is an int
-         while (fabs(k_left - int_k_left) > TOL && fabs(k_right - int_k_right) > TOL)
-         {
-            mid++;
-            //DO THIS
-            //try again with mid shifted one to the right
-			k_left = log2(mid-first+1);                   
-			int_k_left = (int) (k_left+0.5);               
-			k_right = log2(last-mid+1);
-			int_k_right = (int) (k_right+0.5);
+			//keep searching for spot where the number of elements to the left of mid is 2^k - 1 (a full tree)
+			//which means the number of elements to the left of mid including mid is 2^k 
+			//or the number of elements to the right of mid is 2^k
+			//compare the direct log computation and the computation cast to an int
+			//to determine if the direct computation is an int
+			while (fabs(k_left - int_k_left) > TOL && fabs(k_right - int_k_right) > TOL)
+			{
+				mid++;
+				//DO THIS
+				//try again with mid shifted one to the right
 
-         }
-      }
+				k_left = log(mid + 1 - first) * log_factor;                    //log base 2 of the number of items to the left of mid (including mid)
+				int_k_left = (int)(k_left + 0.5);               //same as above but rounded
+				k_right = log(last - mid + 1) * log_factor;
+				int_k_right = (int)(k_right + 0.5);
 
-      //DO THIS
-      //found the next item to insert into the tree
-      //get it, insert it, and make two recursive calls
-		
+
+
+			}
+		}
+
+		//DO THIS
+		//found the next item to insert into the tree
+		//get it, insert it, and make two recursive calls
+
 		this->insert(items[mid]);
-		this->minimizeComplete(items, first, mid-1);
-		this->minimizeComplete(items, mid+1, last);
+
+		this->minimizeComplete(items, first, mid - 1);
+		this->minimizeComplete(items, mid + 1, last);
 
 
 
-
-   }
+	}
 }
 
 template < class T >

@@ -29,7 +29,7 @@ int main(int argc, char** argv)
    delete cds;
 
    //BinarySearchTree<CD>* min = bst->minimizeComplete();
-   BinarySearchTree<CD>* min = bst->minimize();
+   BinarySearchTree<CD>* min = bst->minimizeComplete();
    delete bst;
    bst = min;
 
@@ -40,8 +40,8 @@ int main(int argc, char** argv)
    win.set_position(Gtk::WIN_POS_CENTER);
 
    //the size of the window
-   int width = 1000;
-   int height = 500;
+   int width = 1500;
+   int height = 800;
 
    win.set_size_request(width, height);
    win.set_resizable(false);  
